@@ -42,7 +42,11 @@ export function AuthProvider({ children }) {
       // Create user document in Firestore
       await setDoc(doc(db, "users", userCredential.user.uid), {
         email,
-        displayName,
+        name: displayName,
+        school: "St. Joseph's College",
+        grade: 12,
+        subjects: [],
+        role: "student",
         createdAt: new Date().toISOString(),
       });
 

@@ -11,7 +11,6 @@ export default function NotesPage() {
     <PageLayout>
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">My Notes</h1>
-
         {user ? (
           <div>
             <p className="mb-4">Welcome back, {user.displayName}!</p>
