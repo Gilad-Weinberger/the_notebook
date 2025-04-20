@@ -24,7 +24,7 @@ export const useAuth = () => {
 
 // Create the AuthProvider component
 export function AuthProvider({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Sign up function
@@ -101,9 +101,9 @@ export function AuthProvider({ children }) {
 
   // Get user data from Firestore
   async function getUserData() {
-    if (!currentUser) return null;
+    if (!user) return null;
 
-    const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+    const userDoc = await getDoc(doc(db, "users", user.uid));
     if (userDoc.exists()) {
       return userDoc.data();
     }
@@ -113,7 +113,7 @@ export function AuthProvider({ children }) {
   // Listen for auth state changes
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+      setUser(user);
       setLoading(false);
     });
 
@@ -122,7 +122,7 @@ export function AuthProvider({ children }) {
 
   // Context value
   const value = {
-    currentUser,
+    user,
     signup,
     login,
     logout,
