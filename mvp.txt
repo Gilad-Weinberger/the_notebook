@@ -1,0 +1,91 @@
+## AI Notebook for Students — MVP Specification
+
+### 1. Overview
+An AI Notebook web application to help Israeli students (grades 3/4/5 units) study by providing:
+- Centralized access to all teaching materials (PDF, TXT, DOCX, images) per subject & level
+- AI-powered summarization and note generation (via Gemini API)
+- Note editing, versioning & export (PDF)
+- Real-time collaboration in study groups
+
+Built on **Next.js** (App Router, JavaScript), **TailwindCSS**, **Firebase Auth** & **Firestore**.
+
+---
+
+### 2. Core User Stories
+1. **Authentication & Profile**: Students can sign up / log in (Firebase Auth), set profile (name, grade level, subjects).
+2. **Library Browsing**: Browse/download raw teaching materials by subject & level.
+3. **AI Summarization**: Request summary of entire material or selected pages/sections.
+4. **Notes Management**:
+   - View, edit, delete previous notes
+   - Version history
+5. **Export**: Export any note as PDF.
+6. **Collaboration**:
+   - Create/join study groups
+   - Share & co-edit notes in real time
+
+---
+
+### 3. Tech Stack & Architecture
+- **Frontend**: Next.js (App Router), React, TailwindCSS
+- **Backend**: Next.js API routes
+- **Authentication**: Firebase Auth (Email/Google)
+- **Database**: Firestore (NoSQL)
+- **Storage**: Firebase Storage for large files (PDFs, images)
+- **AI Integration**: Google Gemini API (summarization)
+- **PDF Export**: client-side library (e.g. jsPDF)
+
+
+---
+
+### 4. Data Model (Firestore)
+| Collection       | Document Fields                                  |
+|------------------|---------------------------------------------------|
+| users            | uid, name, email, gradeLevel, joinedGroups[]      |
+| subjects         | subjectId, name, levels: {3,4,5}                  |
+| materials        | materialId, subjectId, level, type, storagePath   |
+| notes            | noteId, userId, title, content, createdAt, updatedAt, version|
+| groups           | groupId, name, members[], noteIds[]               |
+
+---
+
+### 5. UI / Page Flow
+1. **Auth Pages**: `/login`, `/register`
+2. **Dashboard**: Overview of subjects, recent notes, groups
+3. **Library**: `/subjects/[subjectId]?level=` → list materials → viewer + AI pane
+4. **Material Detail**: View PDF/TXT/DOCX, select range, request summary (chat interface)
+5. **Notes**: `/notes` list → create/edit `/notes/[noteId]`
+6. **Group Collaboration**: `/groups` list & `/groups/[groupId]` real-time editor
+7. **Export**: Button in note editor → triggers PDF download
+
+---
+
+### 6. API Endpoints (Next.js)
+- `POST /api/auth/login`, `POST /api/auth/register`
+- `GET /api/subjects`
+- `GET /api/materials?subject=&level=`
+- `POST /api/summarize` { materialId, range? } → calls Gemini
+- `CRUD /api/notes`
+- `POST /api/notes/[noteId]/exportPdf`
+- `CRUD /api/groups`
+
+---
+
+### 7. MVP Scope & Timeline
+| Week | Deliverable                              |
+|------|-------------------------------------------|
+| 1    | Auth, Firestore schema, basic UI skeleton |
+| 2    | Library browse & material viewer         |
+| 3    | AI summarization integration              |
+| 4    | Note CRUD + PDF export                   |
+| 5    | Collaboration & real-time editing         |
+| 6    | Polishing, QA, deploy                     |
+
+---
+
+### 8. Non-Functional Requirements
+- Responsive (mobile + desktop)
+- Secure (Firebase rules)
+- Scalable (Firestore, Storage)
+- Accessible (WCAG basics)
+- Internationalization stub (Hebrew + English)
+
