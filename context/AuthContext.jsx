@@ -10,6 +10,8 @@ import {
   updateProfile,
   updateEmail,
   updatePassword,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
 import { auth, db } from "../lib/firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
@@ -49,6 +51,32 @@ export function AuthProvider({ children }) {
         role: "student",
         createdAt: new Date().toISOString(),
       });
+
+      return userCredential.user;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  // Google sign-in function
+  async function signInWithGoogle() {
+    try {
+      const provider = new GoogleAuthProvider();
+      const userCredential = await signInWithPopup(auth, provider);
+
+      // Check if user document exists, if not create one
+      const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
+      if (!userDoc.exists()) {
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          email: userCredential.user.email,
+          name: userCredential.user.displayName,
+          school: "",
+          grade: 12,
+          subjects: [],
+          role: "student",
+          createdAt: new Date().toISOString(),
+        });
+      }
 
       return userCredential.user;
     } catch (error) {
@@ -135,6 +163,7 @@ export function AuthProvider({ children }) {
     updateUserEmail,
     updateUserPassword,
     getUserData,
+    signInWithGoogle,
   };
 
   return (
