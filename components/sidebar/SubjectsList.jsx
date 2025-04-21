@@ -1,11 +1,20 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { IoAddOutline, IoCalculatorOutline } from "react-icons/io5";
 import { IoMdSchool } from "react-icons/io";
 import { FaFlask } from "react-icons/fa";
 import { MdHistory } from "react-icons/md";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 const SubjectsList = ({ shrink }) => {
+  const [subjects, setSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
+
   // List of icons to use for subjects
   const icons = [
     IoCalculatorOutline, // Math
@@ -14,13 +23,30 @@ const SubjectsList = ({ shrink }) => {
     MdHistory, // History
   ];
 
-  // Sample subjects with icon indexes
-  const subjects = [
-    { id: 1, name: "מתמטיקה", iconIndex: 0 },
-    { id: 2, name: "אנגלית", iconIndex: 1 },
-    { id: 3, name: "פיזיקה", iconIndex: 2 },
-    { id: 4, name: "היסטוריה", iconIndex: 3 },
-  ];
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "subjects"));
+        const subjectsList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+          iconIndex: 0, // Default icon
+        }));
+        setSubjects(subjectsList);
+      } catch (err) {
+        console.error("Error fetching subjects:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubjects();
+  }, []);
+
+  // Check if current subject is active based on path
+  const isActiveSubject = (subjectId) => {
+    return pathname === `/subjects/${subjectId}`;
+  };
 
   return (
     <div
@@ -29,30 +55,39 @@ const SubjectsList = ({ shrink }) => {
       } pb-5`}
     >
       <div className="sticky top-0">
-        {subjects.map((subject) => {
-          const IconComponent = icons[subject.iconIndex];
+        {loading ? (
+          <div className="text-center py-4">טוען נושאים...</div>
+        ) : subjects.length > 0 ? (
+          subjects.map((subject) => {
+            const IconComponent = icons[subject.iconIndex || 0];
+            const isActive = isActiveSubject(subject.id);
 
-          return (
-            <div key={subject.id} className="relative mb-3">
-              {!shrink ? (
-                <div className="absolute right-[10px] h-full w-1.5 bg-blue-500 opacity-100 transition-opacity z-10 rounded-full"></div>
-              ) : (
-                <></>
-              )}
-              <Link
-                href={`/subjects/${subject.id}`}
-                className={`relative flex items-center w-[83%] mx-auto shadow-md rounded-lg ${
-                  shrink ? "py-3 justify-center" : "py-3 px-4"
-                } hover:bg-gray-100 transition-all duration-500 ease-in-out group`}
-              >
-                <div className={shrink ? "" : "ml-2"}>
-                  <IconComponent className="w-6 h-6" />
-                </div>
-                {!shrink && <span className="mr-2">{subject.name}</span>}
-              </Link>
-            </div>
-          );
-        })}
+            return (
+              <div key={subject.id} className="relative mb-3">
+                {!shrink && isActive ? (
+                  <div className="absolute right-[10px] h-full w-1.5 bg-red-500 opacity-100 transition-opacity z-10 rounded-full"></div>
+                ) : (
+                  <></>
+                )}
+                <Link
+                  href={`/subjects/${subject.id}`}
+                  className={`relative flex items-center w-[83%] mx-auto shadow-md rounded-lg ${
+                    shrink ? "py-3 justify-center" : "py-3 px-4"
+                  } ${
+                    isActive ? "bg-gray-100" : ""
+                  } hover:bg-gray-100 transition-all duration-500 ease-in-out group`}
+                >
+                  <div className={shrink ? "" : "ml-2"}>
+                    <IconComponent className="w-6 h-6" />
+                  </div>
+                  {!shrink && <span className="mr-2">{subject.name}</span>}
+                </Link>
+              </div>
+            );
+          })
+        ) : (
+          <div className="text-center py-4">אין נושאים להצגה</div>
+        )}
 
         {/* Add new subject button */}
         <div className="flex justify-center mt-4">
