@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import PageLayout from "@/components/layout/PageLayout";
+import PageLayout from "@/components/PageLayout";
 import { useAuth } from "@/context/AuthContext";
 import { collection, addDoc, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
