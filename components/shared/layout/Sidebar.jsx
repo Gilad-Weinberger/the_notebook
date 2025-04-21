@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import Header from "../sidebar/Header";
-import ExpandButton from "../sidebar/ExpandButton";
-import DashboardLink from "../sidebar/DashboardLink";
-import SubjectsList from "../sidebar/SubjectsList";
-import ProfileSection from "../sidebar/ProfileSection";
+import Header from "../../sidebar/Header";
+import ExpandButton from "../../sidebar/ExpandButton";
+import DashboardLink from "../../sidebar/DashboardLink";
+import SubjectsList from "../../sidebar/SubjectsList";
+import ProfileSection from "../../sidebar/ProfileSection";
 
 const Sidebar = ({ onShrinkChange, disableShrink = false }) => {
   const [shrink, setShrink] = useState(false);
