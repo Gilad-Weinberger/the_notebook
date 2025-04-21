@@ -5,9 +5,9 @@ import { MdDashboard } from "react-icons/md";
 const DashboardLink = ({ shrink, pathname }) => {
   return (
     <Link
-      href="/dashboard"
+      href="/subjects"
       className={`${
-        pathname === "/dashboard"
+        pathname === "/subjects"
           ? "bg-blue-50 text-blue-600"
           : "text-gray-700 hover:bg-gray-100"
       } ${

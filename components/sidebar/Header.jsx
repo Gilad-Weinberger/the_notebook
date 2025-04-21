@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 
-const Header = ({ shrink, setShrink }) => {
+const Header = ({ shrink, setShrink, disableShrink = false }) => {
   return (
     <div className="p-4 flex items-center justify-between border-b border-gray-200">
       {shrink ? (
@@ -29,7 +29,7 @@ const Header = ({ shrink, setShrink }) => {
         </div>
       )}
 
-      {!shrink && (
+      {!shrink && !disableShrink && (
         <button
           onClick={() => setShrink(true)}
           className="p-1 rounded-full hover:bg-gray-100"

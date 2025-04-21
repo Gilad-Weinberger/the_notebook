@@ -3,10 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IoAddOutline, IoCalculatorOutline } from "react-icons/io5";
-import { IoMdSchool } from "react-icons/io";
-import { FaFlask } from "react-icons/fa";
-import { MdHistory } from "react-icons/md";
+import { IoAddOutline } from "react-icons/io5";
+import icons from "@/lib/data/icons";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -14,14 +12,6 @@ const SubjectsList = ({ shrink }) => {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
-
-  // List of icons to use for subjects
-  const icons = [
-    IoCalculatorOutline, // Math
-    IoMdSchool, // English
-    FaFlask, // Physics
-    MdHistory, // History
-  ];
 
   useEffect(() => {
     const fetchSubjects = async () => {

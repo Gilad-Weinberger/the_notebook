@@ -8,6 +8,7 @@ import { IoMenu, IoClose } from "react-icons/io5";
 
 const PageLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarShrunk, setSidebarShrunk] = useState(false);
   const pathname = usePathname();
   const isLandingPage = pathname === "/";
 
@@ -40,12 +41,18 @@ const PageLayout = ({ children }) => {
 
       {/* Sidebar for desktop */}
       <div className="hidden md:block bg-gray-50">
-        <Sidebar />
+        <Sidebar onShrinkChange={(shrunk) => setSidebarShrunk(shrunk)} />
       </div>
 
       {/* Main content */}
       <div className="flex-1 overflow-auto">
-        <main className="py-8 px-4 md:px-8 mr-0 md:mr-72">{children}</main>
+        <main
+          className={`py-8 px-4 md:px-8 pt-16 md:pt-8 ${
+            sidebarShrunk ? "md:mr-24" : "md:mr-72"
+          } transition-all duration-500 ease-in-out`}
+        >
+          {children}
+        </main>
       </div>
 
       {/* Sidebar for mobile (off-canvas) */}
@@ -65,7 +72,7 @@ const PageLayout = ({ children }) => {
             className="absolute top-4 right-4 h-[calc(100vh-2rem)] w-3/4 max-w-xs"
             onClick={(e) => e.stopPropagation()}
           >
-            <Sidebar />
+            <Sidebar disableShrink={true} />
           </div>
         </div>
       </div>

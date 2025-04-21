@@ -11,11 +11,9 @@ import { useParams } from "next/navigation";
 export default function SubjectPage() {
   const { user } = useAuth();
   const params = useParams();
-  const subjectId = params.id;
-
-  const [subject, setSubject] = useState(null);
-  const [materials, setMaterials] = useState([]);
   const [loading, setLoading] = useState(true);
+  const subjectId = params.id;
+  const [subject, setSubject] = useState(null);
 
   useEffect(() => {
     const fetchSubjectAndMaterials = async () => {
