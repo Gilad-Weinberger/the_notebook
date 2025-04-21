@@ -1,16 +1,46 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { IoMenu, IoClose } from "react-icons/io5";
 
 const PageLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarShrunk, setSidebarShrunk] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const isLandingPage = pathname === "/";
+
+  // Enhanced navigation state tracking
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [previousPathname, setPreviousPathname] = useState(pathname);
+  const [contentVisible, setContentVisible] = useState(true);
+
+  useEffect(() => {
+    // Only update navigation state if the path has changed
+    if (previousPathname !== pathname) {
+      // Handle navigation transitions
+      setIsNavigating(true);
+      
+      // Fade out content
+      setContentVisible(false);
+      
+      // After a short delay, update previous path and fade content back in
+      const timer = setTimeout(() => {
+        setPreviousPathname(pathname);
+        setContentVisible(true);
+        
+        // Reset navigation state after transitions complete
+        setTimeout(() => {
+          setIsNavigating(false);
+        }, 200);
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [pathname, previousPathname]);
 
   // Landing page with Navbar
   if (isLandingPage) {
@@ -39,19 +69,25 @@ const PageLayout = ({ children }) => {
         </button>
       </div>
 
-      {/* Sidebar for desktop */}
+      {/* Sidebar for desktop - remains unmounted between navigations */}
       <div className="hidden md:block bg-gray-50">
         <Sidebar onShrinkChange={(shrunk) => setSidebarShrunk(shrunk)} />
       </div>
 
-      {/* Main content */}
+      {/* Main content with transition */}
       <div className="flex-1 overflow-auto">
         <main
           className={`py-8 px-4 md:px-8 pt-16 md:pt-8 ${
             sidebarShrunk ? "md:mr-24" : "md:mr-72"
           } transition-all duration-500 ease-in-out`}
         >
-          {children}
+          <div 
+            className={`transition-opacity duration-300 ease-in-out ${
+              contentVisible ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {children}
+          </div>
         </main>
       </div>
 

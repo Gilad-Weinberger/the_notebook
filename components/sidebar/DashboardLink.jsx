@@ -1,10 +1,10 @@
 import React from "react";
-import Link from "next/link";
 import { MdDashboard } from "react-icons/md";
+import NavigationLink from "../ui/NavigationLink";
 
 const DashboardLink = ({ shrink, pathname }) => {
   return (
-    <Link
+    <NavigationLink
       href="/subjects"
       className={`${
         pathname === "/subjects"
@@ -18,7 +18,7 @@ const DashboardLink = ({ shrink, pathname }) => {
         <MdDashboard className="h-6 w-6" />
         {!shrink && <span className="mr-2">לוח בקרה</span>}
       </div>
-    </Link>
+    </NavigationLink>
   );
 };
 
