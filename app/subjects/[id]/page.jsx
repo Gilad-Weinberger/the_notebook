@@ -14,6 +14,7 @@ export default function SubjectPage() {
   const [loading, setLoading] = useState(true);
   const subjectId = params.id;
   const [subject, setSubject] = useState(null);
+  const [materials, setMaterials] = useState([]);
 
   useEffect(() => {
     const fetchSubjectAndMaterials = async () => {
