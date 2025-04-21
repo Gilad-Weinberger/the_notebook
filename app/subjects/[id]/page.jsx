@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useTransition } from "react";
-import PageLayout from "@/components/PageLayout";
+import PageLayout from "@/components/layout/PageLayout";
 import { useAuth } from "@/context/AuthContext";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -16,7 +16,7 @@ export default function SubjectPage() {
   const params = useParams();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  
+
   // State management
   const [loading, setLoading] = useState(true);
   const [contentLoading, setContentLoading] = useState(true);
@@ -31,7 +31,7 @@ export default function SubjectPage() {
     // Reset content visibility when subject ID changes
     setContentVisible(false);
     setContentLoading(true);
-    
+
     const fetchSubject = async () => {
       try {
         // Fetch subject details
@@ -44,7 +44,7 @@ export default function SubjectPage() {
               id: subjectDoc.id,
               ...subjectDoc.data(),
             });
-            
+
             // For now, just use the subject ID as the model ID to ensure subject-specific notes
             setActiveModelId(subjectId);
           });
@@ -58,7 +58,7 @@ export default function SubjectPage() {
         setTimeout(() => {
           setLoading(false);
           setContentLoading(false);
-          
+
           // Show content with slight delay for smoother transition
           setTimeout(() => {
             setContentVisible(true);
@@ -98,8 +98,12 @@ export default function SubjectPage() {
   }
 
   // Content for the split view panels - pass the specific subjectId to ensure subject-specific notes
-  const notesPanel = <NotesPanel subjectId={subjectId} modelId={activeModelId} />;
-  const aiChatPanel = <AIChat subjectId={subjectId} subjectName={subject.name} />;
+  const notesPanel = (
+    <NotesPanel subjectId={subjectId} modelId={activeModelId} />
+  );
+  const aiChatPanel = (
+    <AIChat subjectId={subjectId} subjectName={subject.name} />
+  );
 
   return (
     <PageLayout>
@@ -113,7 +117,11 @@ export default function SubjectPage() {
         </div>
 
         {user ? (
-          <div className={`flex-grow overflow-hidden transition-opacity duration-300 ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
+          <div
+            className={`flex-grow overflow-hidden transition-opacity duration-300 ${
+              contentVisible ? "opacity-100" : "opacity-0"
+            }`}
+          >
             {contentLoading ? (
               <div className="flex justify-center items-center h-full">
                 <div className="animate-pulse flex space-x-4">
@@ -130,7 +138,7 @@ export default function SubjectPage() {
                 </div>
               </div>
             ) : (
-              <ResizableSplitView 
+              <ResizableSplitView
                 leftContent={notesPanel}
                 rightContent={aiChatPanel}
                 initialSplit={60}
@@ -140,9 +148,7 @@ export default function SubjectPage() {
           </div>
         ) : (
           <div className="bg-yellow-50 border-r-4 border-yellow-400 p-4 m-4">
-            <p className="text-yellow-700">
-              אנא התחבר כדי להשתמש בכלי הנושא.
-            </p>
+            <p className="text-yellow-700">אנא התחבר כדי להשתמש בכלי הנושא.</p>
           </div>
         )}
       </div>
