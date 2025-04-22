@@ -1,29 +1,43 @@
 import React, { useState, useEffect } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { FaTrash } from "react-icons/fa";
 
 const ModelsList = () => {
   const [models, setModels] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchModels = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "models"));
-        const modelsList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setModels(modelsList);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching models:", err);
-        setLoading(false);
-      }
-    };
-
     fetchModels();
   }, []);
+
+  const fetchModels = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "models"));
+      const modelsList = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setModels(modelsList);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching models:", err);
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("האם אתה בטוח שברצונך למחוק מודל זה?")) {
+      try {
+        await deleteDoc(doc(db, "models", id));
+        // Refresh the list after deletion
+        fetchModels();
+      } catch (err) {
+        console.error("Error deleting model:", err);
+        alert("שגיאה במחיקת המודל");
+      }
+    }
+  };
 
   if (loading) {
     return <p className="text-center py-4">טוען מודלים...</p>;
@@ -38,9 +52,18 @@ const ModelsList = () => {
           {models.map((model) => (
             <div
               key={model.id}
-              className="border border-gray-200 rounded-md p-4"
+              className="border border-gray-200 rounded-md p-4 relative group"
             >
-              <h3 className="text-lg font-medium mb-1">קוד: {model.code}</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium mb-1">קוד: {model.code}</h3>
+                <button
+                  onClick={() => handleDelete(model.id)}
+                  className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  aria-label="Delete model"
+                >
+                  <FaTrash />
+                </button>
+              </div>
               <p className="text-sm mb-2">נושא: {model.subjectName || "N/A"}</p>
               <p className="text-sm mb-2">
                 יחידות לימוד:{" "}
