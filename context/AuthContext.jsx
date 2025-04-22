@@ -41,16 +41,7 @@ export function AuthProvider({ children }) {
       // Update profile with display name
       await updateProfile(userCredential.user, { displayName });
 
-      // Create user document in Firestore
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        email,
-        name: displayName,
-        school: "St. Joseph's College",
-        grade: 12,
-        subjects: [],
-        role: "student",
-        createdAt: new Date().toISOString(),
-      });
+      // No longer creating user document in Firestore - will be done in details form
 
       return userCredential.user;
     } catch (error) {
@@ -64,19 +55,7 @@ export function AuthProvider({ children }) {
       const provider = new GoogleAuthProvider();
       const userCredential = await signInWithPopup(auth, provider);
 
-      // Check if user document exists, if not create one
-      const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
-      if (!userDoc.exists()) {
-        await setDoc(doc(db, "users", userCredential.user.uid), {
-          email: userCredential.user.email,
-          name: userCredential.user.displayName,
-          school: "",
-          grade: 12,
-          subjects: [],
-          role: "student",
-          createdAt: new Date().toISOString(),
-        });
-      }
+      // No longer creating user document in Firestore - will be done in details form
 
       return userCredential.user;
     } catch (error) {

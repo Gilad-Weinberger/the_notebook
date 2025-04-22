@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { doc, getDoc } from "firebase/firestore";
+import { db, auth } from "@/lib/firebase";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -11,8 +13,24 @@ export default function SignInPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const { login, signInWithGoogle } = useAuth();
+  const { login, signInWithGoogle, user } = useAuth();
   const router = useRouter();
+
+  const checkUserExists = async (userId) => {
+    if (!userId) {
+      console.error("No user ID provided to checkUserExists");
+      return false;
+    }
+
+    try {
+      const userRef = doc(db, "users", userId);
+      const userDoc = await getDoc(userRef);
+      return userDoc.exists();
+    } catch (error) {
+      console.error("Error checking if user exists:", error);
+      return false;
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,10 +39,34 @@ export default function SignInPage() {
 
     try {
       await login(email, password);
-      router.push("/subjects"); // Redirect to subjects page after successful login
+
+      // Add a slight delay to ensure auth state is updated
+      setTimeout(async () => {
+        // Try to get the user ID
+        const userId = user?.uid || auth.currentUser?.uid;
+
+        if (!userId) {
+          console.warn("Could not retrieve user ID after login");
+          router.push("/auth/details-form");
+          return;
+        }
+
+        // Check if user exists in database
+        const userExists = await checkUserExists(userId);
+
+        if (userExists) {
+          // User exists in database, redirect to subjects
+          router.push("/subjects");
+        } else {
+          // User doesn't exist in database, redirect to details form
+          router.push("/auth/details-form");
+        }
+
+        setLoading(false);
+      }, 1000);
     } catch (error) {
-      setError(error.message);
-    } finally {
+      console.error("Login error:", error);
+      setError(error.message || "Failed to login");
       setLoading(false);
     }
   };
@@ -35,10 +77,34 @@ export default function SignInPage() {
 
     try {
       await signInWithGoogle();
-      router.push("/subjects"); // Redirect to subjects page after successful login
+
+      // Add a slight delay to ensure auth state is updated
+      setTimeout(async () => {
+        // Try to get the user ID
+        const userId = user?.uid || auth.currentUser?.uid;
+
+        if (!userId) {
+          console.warn("Could not retrieve user ID after Google sign-in");
+          router.push("/auth/details-form");
+          return;
+        }
+
+        // Check if user exists in database
+        const userExists = await checkUserExists(userId);
+
+        if (userExists) {
+          // User exists in database, redirect to subjects
+          router.push("/subjects");
+        } else {
+          // User doesn't exist in database, redirect to details form
+          router.push("/auth/details-form");
+        }
+
+        setGoogleLoading(false);
+      }, 1000);
     } catch (error) {
-      setError(error.message);
-    } finally {
+      console.error("Google signin error:", error);
+      setError(error.message || "Failed to sign in with Google");
       setGoogleLoading(false);
     }
   };

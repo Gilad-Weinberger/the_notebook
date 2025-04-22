@@ -32,7 +32,7 @@ export default function SignUpPage() {
 
     try {
       await signup(email, password, displayName);
-      router.push("/subjects"); // Redirect to subjects page after successful signup
+      router.push("/auth/details-form"); // Redirect to details form after successful signup
     } catch (error) {
       setError(error.message);
     } finally {
@@ -46,7 +46,7 @@ export default function SignUpPage() {
 
     try {
       await signInWithGoogle();
-      router.push("/subjects"); // Redirect to subjects page after successful signup
+      router.push("/auth/details-form"); // Redirect to details form after successful signup
     } catch (error) {
       setError(error.message);
     } finally {
