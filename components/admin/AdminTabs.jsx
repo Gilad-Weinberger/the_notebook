@@ -2,6 +2,7 @@ import React from "react";
 
 const AdminTabs = ({ activeTab, setActiveTab }) => {
   const tabs = [
+    { id: "users", label: "משתמשים" },
     { id: "subjects", label: "נושאים" },
     { id: "models", label: "מודלים" },
   ];

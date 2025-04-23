@@ -12,6 +12,7 @@ import SubjectForm from "@/components/admin/SubjectForm";
 import SubjectsList from "@/components/admin/SubjectsList";
 import ModelForm from "@/components/admin/ModelForm";
 import ModelsList from "@/components/admin/ModelsList";
+import UserManagement from "@/components/admin/UserManagement";
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -86,12 +87,16 @@ export default function AdminPage() {
     <AdminLayout user={user} isAdmin={isAdmin} loading={loading}>
       <AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {activeTab === "subjects" ? (
+      {activeTab === "users" && <UserManagement />}
+
+      {activeTab === "subjects" && (
         <>
           <SubjectForm onSubjectAdded={handleSubjectAdded} />
           <SubjectsList subjects={subjects} />
         </>
-      ) : (
+      )}
+
+      {activeTab === "models" && (
         <>
           <ModelForm onModelAdded={handleModelAdded} />
           <ModelsList key={modelsRefreshTrigger} />

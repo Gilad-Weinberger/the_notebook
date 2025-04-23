@@ -3,8 +3,8 @@ import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
 
 const rubik = Rubik({
-  variable: "--font-rubik",
-  subsets: ["latin", "hebrew"],
+  subsets: ["latin"],
+  weights: ["400", "700"],
 });
 
 export const metadata = {
@@ -15,7 +15,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="he" dir="rtl">
-      <body className={`${rubik.variable}`}>
+      <body className={`${rubik.className}`}>
         <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
