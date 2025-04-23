@@ -5,37 +5,89 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { IoAddOutline } from "react-icons/io5";
 import icons from "@/lib/data/icons";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useAuth } from "@/context/AuthContext";
 
 const SubjectsList = ({ shrink }) => {
-  const [subjects, setSubjects] = useState([]);
+  const [userSubjects, setUserSubjects] = useState([]);
+  const [userModels, setUserModels] = useState([]);
+  const [subjectModelsMap, setSubjectModelsMap] = useState({});
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
+  const { user } = useAuth();
 
   useEffect(() => {
-    const fetchSubjects = async () => {
+    const fetchUserData = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const querySnapshot = await getDocs(collection(db, "subjects"));
-        const subjectsList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-          iconIndex: 0, // Default icon
-        }));
-        setSubjects(subjectsList);
+        // Step 1: Get user's models from Firestore
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+
+        if (userDoc.exists() && userDoc.data().models) {
+          const userModelIds = userDoc.data().models;
+          setUserModels(userModelIds);
+
+          // Step 2: Get all models details
+          const modelsSnapshot = await getDocs(collection(db, "models"));
+          const modelsData = modelsSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+
+          // Step 3: Filter models that the user has
+          const userModelsData = modelsData.filter((model) =>
+            userModelIds.includes(model.id)
+          );
+
+          // Step 4: Create a map of subject IDs to model IDs
+          const subjectToModels = {};
+          userModelsData.forEach((model) => {
+            if (model.subjectId) {
+              if (!subjectToModels[model.subjectId]) {
+                subjectToModels[model.subjectId] = [];
+              }
+              subjectToModels[model.subjectId].push({
+                id: model.id,
+                code: model.code,
+              });
+            }
+          });
+          setSubjectModelsMap(subjectToModels);
+
+          // Step 5: Get subjects that match the user's models
+          const subjectsSnapshot = await getDocs(collection(db, "subjects"));
+          const allSubjects = subjectsSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+            iconIndex: 0, // Default icon
+          }));
+
+          // Step 6: Filter subjects to only include those in the user's models
+          const userSubjectsList = allSubjects.filter(
+            (subject) => subjectToModels[subject.id]
+          );
+
+          setUserSubjects(userSubjectsList);
+        }
+
+        setLoading(false);
       } catch (err) {
-        console.error("Error fetching subjects:", err);
-      } finally {
+        console.error("Error fetching user subjects:", err);
         setLoading(false);
       }
     };
 
-    fetchSubjects();
-  }, []);
+    fetchUserData();
+  }, [user]);
 
-  // Check if current subject is active based on path
+  // Check if current subject or model is active based on path
   const isActiveSubject = (subjectId) => {
-    return pathname === `/subjects/${subjectId}`;
+    return pathname.startsWith(`/subjects/${subjectId}`);
   };
 
   return (
@@ -47,10 +99,12 @@ const SubjectsList = ({ shrink }) => {
       <div className="sticky top-0">
         {loading ? (
           <div className="text-center py-4">טוען נושאים...</div>
-        ) : subjects.length > 0 ? (
-          subjects.map((subject) => {
+        ) : userSubjects.length > 0 ? (
+          userSubjects.map((subject) => {
             const IconComponent = icons[subject.iconIndex || 0];
             const isActive = isActiveSubject(subject.id);
+            // Get the first model ID for this subject to use in the link
+            const firstModelId = subjectModelsMap[subject.id]?.[0]?.id;
 
             return (
               <div key={subject.id} className="relative mb-3">
@@ -60,7 +114,7 @@ const SubjectsList = ({ shrink }) => {
                   <></>
                 )}
                 <Link
-                  href={`/subjects/${subject.id}`}
+                  href={firstModelId ? `/subjects/${firstModelId}` : "#"}
                   className={`relative flex items-center w-[83%] mx-auto shadow-md rounded-lg ${
                     shrink ? "py-3 justify-center" : "py-3 px-4"
                   } ${
@@ -81,11 +135,13 @@ const SubjectsList = ({ shrink }) => {
 
         {/* Add new subject button */}
         <div className="flex justify-center mt-4">
-          <button
-            className={`flex items-center cursor-pointer justify-center h-12 w-12 rounded-full bg-gray-100 shadow-md hover:bg-gray-200 transition-all duration-500 ease-in-out`}
-          >
-            <IoAddOutline className="h-6 w-6 text-gray-500" />
-          </button>
+          <Link href="/auth/details-form">
+            <button
+              className={`flex items-center cursor-pointer justify-center h-12 w-12 rounded-full bg-gray-100 shadow-md hover:bg-gray-200 transition-all duration-500 ease-in-out`}
+            >
+              <IoAddOutline className="h-6 w-6 text-gray-500" />
+            </button>
+          </Link>
         </div>
       </div>
     </div>

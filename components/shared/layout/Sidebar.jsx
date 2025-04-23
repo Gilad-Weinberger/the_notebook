@@ -50,9 +50,9 @@ const Sidebar = ({ onShrinkChange, disableShrink = false }) => {
       <SubjectsList shrink={shrink} />
 
       <Link
-        href="/user-management"
-        className={`$ {
-          pathname === "/user-management"
+        href="/admin"
+        className={`${
+          pathname === "/admin"
             ? "bg-blue-50 text-blue-600"
             : "text-gray-700 hover:bg-gray-100"
         } ${
@@ -60,8 +60,7 @@ const Sidebar = ({ onShrinkChange, disableShrink = false }) => {
         } transition-all duration-500 ease-in-out mt-2`}
       >
         <div className="flex items-center">
-          <span className="material-icons">manage_accounts</span>
-          {!shrink && <span className="mr-2">ניהול משתמשים</span>}
+          <span className="material-icons">admin</span>
         </div>
       </Link>
 

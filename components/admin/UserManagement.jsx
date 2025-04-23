@@ -11,6 +11,9 @@ import {
 import { db } from "@/lib/firebase";
 
 const UserManagement = () => {
+  // Define available roles
+  const roles = ["admin", "student"];
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -98,14 +101,17 @@ const UserManagement = () => {
                   <td className="py-2 px-4 border-b">{user.email}</td>
                   <td className="py-2 px-4 border-b">
                     <select
-                      value={user.role || "user"}
+                      value={user.role || "student"}
                       onChange={(e) =>
                         handleRoleChange(user.id, e.target.value)
                       }
                       className="py-1 px-2 border rounded"
                     >
-                      <option value="user">משתמש</option>
-                      <option value="admin">מנהל</option>
+                      {roles.map((role) => (
+                        <option key={role} value={role}>
+                          {role === "admin" ? "מנהל" : "סטודנט"}
+                        </option>
+                      ))}
                     </select>
                   </td>
                   <td className="py-2 px-4 border-b">
