@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 const DetailsForm = () => {
@@ -12,6 +12,9 @@ const DetailsForm = () => {
   const [currentModel, setCurrentModel] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [availableModels, setAvailableModels] = useState([]);
   const { user } = useAuth();
   const router = useRouter();
 
@@ -27,32 +30,57 @@ const DetailsForm = () => {
       setName(user.displayName);
     }
 
-    // Check if user already exists in database - if so, redirect to subjects
-    const checkUserInDb = async () => {
+    // Fetch subjects and their models
+    const fetchSubjectsAndModels = async () => {
       try {
-        const userRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userRef);
-
-        if (userDoc.exists()) {
-          // User already exists in database, redirect to subjects
-          router.push("/subjects");
-        }
+        const subjectsSnapshot = await getDocs(collection(db, "subjects"));
+        const subjectsList = subjectsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setSubjects(subjectsList);
       } catch (error) {
-        console.error("Error checking user in database:", error);
+        console.error("Error fetching subjects:", error);
       }
     };
 
-    checkUserInDb();
+    fetchSubjectsAndModels();
   }, [user, router]);
 
-  const addModel = () => {
-    if (currentModel.trim() === "") return;
-    setModels([...models, currentModel.trim()]);
-    setCurrentModel("");
+  // Fetch models when a subject is selected
+  useEffect(() => {
+    const fetchModels = async () => {
+      if (!selectedSubject) {
+        setAvailableModels([]);
+        return;
+      }
+
+      try {
+        const modelsSnapshot = await getDocs(collection(db, "models"));
+        const modelsList = modelsSnapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .filter((model) => model.subjectId === selectedSubject);
+        setAvailableModels(modelsList);
+      } catch (error) {
+        console.error("Error fetching models:", error);
+      }
+    };
+
+    fetchModels();
+  }, [selectedSubject]);
+
+  const addModel = (modelId) => {
+    const modelToAdd = availableModels.find((model) => model.id === modelId);
+    if (modelToAdd && !models.includes(modelToAdd.id)) {
+      setModels([...models, modelToAdd.id]);
+    }
   };
 
-  const removeModel = (index) => {
-    setModels(models.filter((_, i) => i !== index));
+  const removeModel = (modelId) => {
+    setModels(models.filter((id) => id !== modelId));
   };
 
   const handleSubmit = async (e) => {
@@ -115,26 +143,56 @@ const DetailsForm = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              הוספת דגמים
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="subject"
+            >
+              בחר נושא
             </label>
-            <div className="flex">
-              <input
-                type="text"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right"
-                value={currentModel}
-                onChange={(e) => setCurrentModel(e.target.value)}
-                placeholder="הזן דגם"
-              />
-              <button
-                type="button"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
-                onClick={addModel}
-              >
-                הוסף
-              </button>
-            </div>
+            <select
+              id="subject"
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-right"
+              value={selectedSubject}
+              onChange={(e) => setSelectedSubject(e.target.value)}
+            >
+              <option value="">בחר נושא</option>
+              {subjects.map((subject) => (
+                <option key={subject.id} value={subject.id}>
+                  {subject.name}
+                </option>
+              ))}
+            </select>
           </div>
+
+          {selectedSubject && (
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                בחר דגמים
+              </label>
+              <div className="max-h-40 overflow-y-auto border rounded p-2">
+                {availableModels.map((model) => (
+                  <div
+                    key={model.id}
+                    className="flex items-center justify-between p-2 hover:bg-gray-50"
+                  >
+                    <span>{model.code}</span>
+                    <button
+                      type="button"
+                      onClick={() => addModel(model.id)}
+                      className={`px-2 py-1 rounded ${
+                        models.includes(model.id)
+                          ? "bg-green-100 text-green-800"
+                          : "bg-blue-100 text-blue-800"
+                      }`}
+                      disabled={models.includes(model.id)}
+                    >
+                      {models.includes(model.id) ? "נבחר" : "בחר"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {models.length > 0 && (
             <div className="mb-6">
@@ -142,21 +200,24 @@ const DetailsForm = () => {
                 הדגמים שנבחרו
               </label>
               <ul className="bg-gray-100 p-3 rounded">
-                {models.map((model, index) => (
-                  <li
-                    key={index}
-                    className="flex justify-between items-center mb-1 last:mb-0"
-                  >
-                    <span>{model}</span>
-                    <button
-                      type="button"
-                      className="text-red-600 hover:text-red-800"
-                      onClick={() => removeModel(index)}
+                {models.map((modelId) => {
+                  const model = availableModels.find((m) => m.id === modelId);
+                  return (
+                    <li
+                      key={modelId}
+                      className="flex justify-between items-center mb-1 last:mb-0"
                     >
-                      הסר
-                    </button>
-                  </li>
-                ))}
+                      <span>{model?.code}</span>
+                      <button
+                        type="button"
+                        className="text-red-600 hover:text-red-800"
+                        onClick={() => removeModel(modelId)}
+                      >
+                        הסר
+                      </button>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}

@@ -7,6 +7,7 @@ import ExpandButton from "../../sidebar/ExpandButton";
 import DashboardLink from "../../sidebar/DashboardLink";
 import SubjectsList from "../../sidebar/SubjectsList";
 import ProfileSection from "../../sidebar/ProfileSection";
+import Link from "next/link";
 
 const Sidebar = ({ onShrinkChange, disableShrink = false }) => {
   const [shrink, setShrink] = useState(false);
@@ -47,6 +48,22 @@ const Sidebar = ({ onShrinkChange, disableShrink = false }) => {
       <DashboardLink shrink={shrink} pathname={pathname} />
 
       <SubjectsList shrink={shrink} />
+
+      <Link
+        href="/user-management"
+        className={`$ {
+          pathname === "/user-management"
+            ? "bg-blue-50 text-blue-600"
+            : "text-gray-700 hover:bg-gray-100"
+        } ${
+          shrink ? "p-3 flex justify-center" : "p-4"
+        } transition-all duration-500 ease-in-out mt-2`}
+      >
+        <div className="flex items-center">
+          <span className="material-icons">manage_accounts</span>
+          {!shrink && <span className="mr-2">ניהול משתמשים</span>}
+        </div>
+      </Link>
 
       <ProfileSection shrink={shrink} />
     </div>
