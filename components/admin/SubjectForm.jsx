@@ -16,7 +16,7 @@ const SubjectForm = ({ onSubjectAdded }) => {
 
     // Validate inputs
     if (!name.trim()) {
-      setFormError("שם הנושא הוא שדה חובה");
+      setFormError("שם המקצוע הוא שדה חובה");
       return;
     }
 
@@ -34,7 +34,7 @@ const SubjectForm = ({ onSubjectAdded }) => {
 
       // Reset form
       setName("");
-      setFormSuccess("הנושא נוצר בהצלחה!");
+      setFormSuccess("המקצוע נוצר בהצלחה!");
 
       // Notify parent component
       if (onSubjectAdded) {
@@ -42,7 +42,7 @@ const SubjectForm = ({ onSubjectAdded }) => {
       }
     } catch (error) {
       console.error("Error creating subject:", error);
-      setFormError("אירעה שגיאה ביצירת הנושא. אנא נסה שוב מאוחר יותר.");
+      setFormError("אירעה שגיאה ביצירת המקצוע. אנא נסה שוב מאוחר יותר.");
     } finally {
       setSubmitting(false);
     }
@@ -50,7 +50,7 @@ const SubjectForm = ({ onSubjectAdded }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-      <h2 className="text-2xl font-semibold mb-4">יצירת נושא חדש</h2>
+      <h2 className="text-2xl font-semibold mb-4">יצירת מקצוע חדש</h2>
 
       {formError && (
         <div className="bg-red-50 border-r-4 border-red-400 p-3 mb-4">
@@ -70,7 +70,7 @@ const SubjectForm = ({ onSubjectAdded }) => {
             htmlFor="name"
             className="block text-gray-700 font-medium mb-2"
           >
-            שם הנושא <span className="text-red-500">*</span>
+            שם המקצוע <span className="text-red-500">*</span>
           </label>
           <input
             type="text"
@@ -91,7 +91,7 @@ const SubjectForm = ({ onSubjectAdded }) => {
               submitting ? "opacity-70 cursor-not-allowed" : ""
             }`}
           >
-            {submitting ? "מוסיף..." : "הוסף נושא"}
+            {submitting ? "מוסיף..." : "הוסף מקצוע"}
           </button>
         </div>
       </form>

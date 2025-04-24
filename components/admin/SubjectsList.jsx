@@ -5,21 +5,21 @@ import { FaTrash } from "react-icons/fa";
 
 const SubjectsList = ({ subjects }) => {
   const handleDelete = async (id) => {
-    if (window.confirm("האם אתה בטוח שברצונך למחוק נושא זה?")) {
+    if (window.confirm("האם אתה בטוח שברצונך למחוק מקצוע זה?")) {
       try {
         await deleteDoc(doc(db, "subjects", id));
         // You would typically refresh the list here
         window.location.reload();
       } catch (err) {
         console.error("Error deleting subject:", err);
-        alert("שגיאה במחיקת הנושא");
+        alert("שגיאה במחיקת המקצוע");
       }
     }
   };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-semibold mb-4">נושאים קיימים</h2>
+      <h2 className="text-2xl font-semibold mb-4">מקצועות קיימים</h2>
 
       {subjects.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -43,7 +43,7 @@ const SubjectsList = ({ subjects }) => {
           ))}
         </div>
       ) : (
-        <p className="text-gray-600">אין נושאים להצגה.</p>
+        <p className="text-gray-600">אין מקצועות להצגה.</p>
       )}
     </div>
   );

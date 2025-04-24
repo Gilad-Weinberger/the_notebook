@@ -3,7 +3,7 @@ import React from "react";
 const AdminTabs = ({ activeTab, setActiveTab }) => {
   const tabs = [
     { id: "users", label: "משתמשים" },
-    { id: "subjects", label: "נושאים" },
+    { id: "subjects", label: "מקצועות" },
     { id: "models", label: "מודלים" },
   ];
 
