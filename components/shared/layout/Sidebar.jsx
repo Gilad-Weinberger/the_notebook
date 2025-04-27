@@ -8,6 +8,7 @@ import DashboardLink from "./sidebar/DashboardLink";
 import SubjectsList from "./sidebar/SubjectsList";
 import ProfileSection from "./sidebar/ProfileSection";
 import Link from "next/link";
+import { MdAdminPanelSettings } from "react-icons/md";
 
 const Sidebar = ({ onShrinkChange, disableShrink = false }) => {
   const [shrink, setShrink] = useState(false);
@@ -60,7 +61,8 @@ const Sidebar = ({ onShrinkChange, disableShrink = false }) => {
         } transition-all duration-500 ease-in-out mt-2`}
       >
         <div className="flex items-center">
-          <span className="material-icons">admin</span>
+          <MdAdminPanelSettings className="h-6 w-6" />
+          {!shrink && <span className="mr-2">ניהול</span>}
         </div>
       </Link>
 
