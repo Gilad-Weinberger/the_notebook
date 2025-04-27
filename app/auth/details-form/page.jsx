@@ -246,7 +246,9 @@ const DetailsForm = () => {
 
       // Save user data
       await saveUserData(user.uid, userData);
-      router.push("/subjects");
+
+      // Redirect with refresh parameter to force sidebar update
+      router.push("/subjects?refresh=true");
     } catch (error) {
       console.error("Error saving user:", error);
       setError("אירעה שגיאה בשמירת הפרטים");

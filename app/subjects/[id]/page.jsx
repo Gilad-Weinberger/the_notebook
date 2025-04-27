@@ -8,6 +8,7 @@ import { db } from "@/lib/firebase";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { IoChevronDownOutline } from "react-icons/io5";
+import LoadingSpinner from "@/components/shared/ui/LoadingSpinner";
 
 export default function ModelPage() {
   const { user } = useAuth();
@@ -112,8 +113,8 @@ export default function ModelPage() {
   if (loading) {
     return (
       <PageLayout>
-        <div className="max-w-4xl mx-auto">
-          <p className="text-center">טוען נתונים...</p>
+        <div className="max-w-4xl mx-auto h-[calc(100vh-200px)] flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       </PageLayout>
     );
